@@ -38,10 +38,10 @@ kubectl config use-context default
 if [ ! -z ${PLUGIN_USE_STATEFULSET} ]; then
     echo "WARNING: Currently updating statefulset ${PLUGIN_STATEFULSET}."
 
-    IFS=',' read -r -a DEPLOYMENTS <<< "${PLUGIN_STATEFULSET}"
+    IFS=',' read -r -a STATEFULSETS <<< "${PLUGIN_STATEFULSET}"
     IFS=',' read -r -a CONTAINERS <<< "${PLUGIN_CONTAINER}"
-    for DEPLOY in ${DEPLOYMENTS[@]}; do
-      echo Deploying to $KUBERNETES_SERVER
+    for DEPLOY in ${STATEFULSETS[@]}; do
+      echo Deploying statefulset to $KUBERNETES_SERVER
       for CONTAINER in ${CONTAINERS[@]}; do
         if [[ ${PLUGIN_FORCE} == "true" ]]; then
           kubectl -n ${PLUGIN_NAMESPACE} set image statefulset/${DEPLOY} \
@@ -68,6 +68,5 @@ else
           ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG} --record
       done
     done
-
 
 fi
