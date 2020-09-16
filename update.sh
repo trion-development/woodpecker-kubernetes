@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -z ${PLUGIN_NAMESPACE} ]; then
   PLUGIN_NAMESPACE="default"
 fi
@@ -33,16 +35,39 @@ kubectl config set-context default --cluster=default --user=${PLUGIN_KUBERNETES_
 kubectl config use-context default
 
 # kubectl version
-IFS=',' read -r -a DEPLOYMENTS <<< "${PLUGIN_DEPLOYMENT}"
-IFS=',' read -r -a CONTAINERS <<< "${PLUGIN_CONTAINER}"
-for DEPLOY in ${DEPLOYMENTS[@]}; do
-  echo Deploying to $KUBERNETES_SERVER
-  for CONTAINER in ${CONTAINERS[@]}; do
-    if [[ ${PLUGIN_FORCE} == "true" ]]; then
-      kubectl -n ${PLUGIN_NAMESPACE} set image deployment/${DEPLOY} \
-        ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG}FORCE
-    fi
-    kubectl -n ${PLUGIN_NAMESPACE} set image deployment/${DEPLOY} \
-      ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG} --record
-  done
-done
+if [ ! -z ${PLUGIN_USE_STATEFULSET} ]; then
+    echo "WARNING: Currently updating statefulset ${PLUGIN_STATEFULSET}."
+
+    IFS=',' read -r -a DEPLOYMENTS <<< "${PLUGIN_STATEFULSET}"
+    IFS=',' read -r -a CONTAINERS <<< "${PLUGIN_CONTAINER}"
+    for DEPLOY in ${DEPLOYMENTS[@]}; do
+      echo Deploying to $KUBERNETES_SERVER
+      for CONTAINER in ${CONTAINERS[@]}; do
+        if [[ ${PLUGIN_FORCE} == "true" ]]; then
+          kubectl -n ${PLUGIN_NAMESPACE} set image statefulset/${DEPLOY} \
+            ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG}FORCE
+        fi
+        kubectl -n ${PLUGIN_NAMESPACE} set image statefulset/${DEPLOY} \
+          ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG} --record
+      done
+    done
+
+else
+    echo "WARNING: Currently updating deployment ${PLUGIN_DEPLOYMENT}"
+
+    IFS=',' read -r -a DEPLOYMENTS <<< "${PLUGIN_DEPLOYMENT}"
+    IFS=',' read -r -a CONTAINERS <<< "${PLUGIN_CONTAINER}"
+    for DEPLOY in ${DEPLOYMENTS[@]}; do
+      echo Deploying to $KUBERNETES_SERVER
+      for CONTAINER in ${CONTAINERS[@]}; do
+        if [[ ${PLUGIN_FORCE} == "true" ]]; then
+          kubectl -n ${PLUGIN_NAMESPACE} set image deployment/${DEPLOY} \
+            ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG}FORCE
+        fi
+        kubectl -n ${PLUGIN_NAMESPACE} set image deployment/${DEPLOY} \
+          ${CONTAINER}=${PLUGIN_REPO}:${PLUGIN_TAG} --record
+      done
+    done
+
+
+fi
