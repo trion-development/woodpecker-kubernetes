@@ -1,3 +1,13 @@
+---
+name: Kubernetes Deployment or StatefulSet Update
+authors: EuryeceTelecom
+description: Update a Kubernetes deployment or statefulset
+tags: [deploy, kubernetes, deployment, container, statefulset]
+containerImage: euryecetelecom/woodpeckerci-kubernetes
+containerImageUrl: https://hub.docker.com/r/euryecetelecom/woodpeckerci-kubernetes
+url: https://github.com/euryecetelecom/woodpeckerci-kubernetes
+---
+
 # Kubernetes plugin for Woodpecker-CI
 
 This plugin allows to update a Kubernetes deployment or statefulset.
