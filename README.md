@@ -2,6 +2,24 @@
 
 This plugin allows to update a Kubernetes deployment or statefulset.
 
+
+## Settings
+
+| Settings Name             | Default               | Description
+| --------------------------| --------------------- | --------------------------------------------
+| `kubernetes_server`       | *none*                | Kubernetes server to target (ex: https://mykubernetes.example.com) - mandatory
+| `kubernetes_token`        | *none*                | Kubernetes token to use (cf Generating secrets) - mandatory
+| `kubernetes_cert`         | *none*                | Kubernetes certificate to use (cf Generating secrets)
+| `deployment`              | *none*                | Deployment(s) to update - at least 1 deployment or statefulset are mandatory
+| `statefulset`             | *none*                | StatefulSet(s) to update - at least 1 deployment or statefulset are mandatory
+| `namespace`               | `default`             | Deployment or StatefulSet namespace
+| `repo`                    | *none*                | Repository containing the image to pull from (ex: myrepo.example.com/project/image) - mandatory
+| `container`               | *none*                | Container(s) to update with the image - mandatory
+| `tag`                     | *none*                | Image tag to pull from - mandatory
+| `wait`                    | *none*                | Wait for update to be applied (ex: true)
+| `wait_timeout`            | `30s`                 | Wait timeout
+| `force`                   | *none*                | Force pull the new image, to ensure an image with the same tag is updated (ex: true)
+
 ## Usage
 
 ### Update a container from one Deployment
