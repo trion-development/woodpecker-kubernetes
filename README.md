@@ -10,6 +10,7 @@ This plugin allows to update a Kubernetes deployment or statefulset.
 | `kubernetes_server`       | *none*                | Kubernetes server to target (ex: https://mykubernetes.example.com) - mandatory
 | `kubernetes_token`        | *none*                | Kubernetes token to use (cf Generating secrets) - mandatory
 | `kubernetes_cert`         | *none*                | Kubernetes certificate to use (cf Generating secrets)
+| `kubernetes_user`         | `default`             | Kubernetes certificate to use
 | `deployment`              | *none*                | Deployment(s) to update - at least 1 deployment or statefulset are mandatory
 | `statefulset`             | *none*                | StatefulSet(s) to update - at least 1 deployment or statefulset are mandatory
 | `namespace`               | `default`             | Deployment or StatefulSet namespace
