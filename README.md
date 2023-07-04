@@ -1,180 +1,220 @@
-# Kubernetes plugin for drone.io [![Docker Repository on Quay](https://quay.io/repository/honestbee/drone-kubernetes/status "Docker Repository on Quay")](https://quay.io/repository/honestbee/drone-kubernetes)
+# Kubernetes plugin for Woodpecker-CI
 
-This plugin allows to update a Kubernetes deployment.
+This plugin allows to update a Kubernetes deployment or statefulset.
 
-## Usage  
+## Usage
 
-This pipeline will update the `my-deployment` deployment with the image tagged `DRONE_COMMIT_SHA:0:8`
+### Update a container from one Deployment
+
+This pipeline will update the `my-deployment` deployment with the image tagged `CI_COMMIT_SHA`
 
 ```yaml
-    pipeline:
-        deploy:
-            image: quay.io/honestbee/drone-kubernetes
+    deploy:
+        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        settings:
+            kubernetes_server:
+                from_secret: kubernetes_server
+            kubernetes_token:
+                from_secret: kubernetes_token
+            kubernetes_cert:
+                from_secret: kubernetes_cert
+            namespace: default
             deployment: my-deployment
             repo: myorg/myrepo
             container: my-container
-            tag: 
-                - mytag
-                - latest
+            tag: ${CI_COMMIT_BRANCH}
+        secrets:
+            - kubernetes_cert
+            - kubernetes_server
+            - kubernetes_token
 ```
+
+### Update a container from one StatefulSet
+
+This pipeline will update the `my-statefulset` statefulset with the image tagged `CI_COMMIT_SHA`
+
+```yaml
+    deploy:
+        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        settings:
+            kubernetes_server:
+                from_secret: kubernetes_server
+            kubernetes_token:
+                from_secret: kubernetes_token
+            kubernetes_cert:
+                from_secret: kubernetes_cert
+            namespace: default
+            statefulset: my-statefulset
+            repo: myorg/myrepo
+            container: my-container
+            tag: ${CI_COMMIT_BRANCH}
+        secrets:
+            - kubernetes_cert
+            - kubernetes_server
+            - kubernetes_token
+```
+
+### Update a container from one Deployment, force rollout and wait for it
+
+This pipeline will update the `my-deployment` deployment with the image tagged `CI_COMMIT_SHA`, force rollout and wait 300s (default is 30s) for it to be ready. This helps to ensure the next pipeline step is based on the deployed container - for automatic testing purposes for example.
+
+```yaml
+    deploy:
+        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        settings:
+            kubernetes_server:
+                from_secret: kubernetes_server
+            kubernetes_token:
+                from_secret: kubernetes_token
+            kubernetes_cert:
+                from_secret: kubernetes_cert
+            namespace: default
+            wait: true
+            wait_timeout: 60s
+            force: true
+            deployment: my-deployment
+            repo: myorg/myrepo
+            container: my-container
+            tag: ${CI_COMMIT_BRANCH}
+        secrets:
+            - kubernetes_cert
+            - kubernetes_server
+            - kubernetes_token
+```
+
+### Update a container from several Deployments
 
 Deploying containers across several deployments, eg in a scheduler-worker setup. Make sure your container `name` in your manifest is the same for each pod.
     
 ```yaml
-    pipeline:
-        deploy:
-            image: quay.io/honestbee/drone-kubernetes
+    deploy:
+        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        settings:
+            kubernetes_server:
+                from_secret: kubernetes_server
+            kubernetes_token:
+                from_secret: kubernetes_token
+            kubernetes_cert:
+                from_secret: kubernetes_cert
+            namespace: default
             deployment: [server-deploy, worker-deploy]
             repo: myorg/myrepo
             container: my-container
-            tag:                 
-                - mytag
-                - latest
+            tag: ${CI_COMMIT_BRANCH}
+        secrets:
+            - kubernetes_cert
+            - kubernetes_server
+            - kubernetes_token
 ```
+
+### Update multiple container from a Deployment
 
 Deploying multiple containers within the same deployment.
 
 ```yaml
-    pipeline:
-        deploy:
-            image: quay.io/honestbee/drone-kubernetes
+    deploy:
+        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        settings:
+            kubernetes_server:
+                from_secret: kubernetes_server
+            kubernetes_token:
+                from_secret: kubernetes_token
+            kubernetes_cert:
+                from_secret: kubernetes_cert
+            namespace: default
             deployment: my-deployment
             repo: myorg/myrepo
             container: [container1, container2]
-            tag:                 
-                - mytag
-                - latest
+            tag: ${CI_COMMIT_BRANCH}
+        secrets:
+            - kubernetes_cert
+            - kubernetes_server
+            - kubernetes_token
 ```
 
-**NOTE**: Combining multi container deployments across multiple deployments is not recommended
-
-This more complex example demonstrates how to deploy to several environments based on the branch, in a `app` namespace 
-
-```yaml
-    pipeline:
-        deploy-staging:
-            image: quay.io/honestbee/drone-kubernetes
-            kubernetes_server: ${KUBERNETES_SERVER_STAGING}
-            kubernetes_cert: ${KUBERNETES_CERT_STAGING}
-            kubernetes_token: ${KUBERNETES_TOKEN_STAGING}
-            deployment: my-deployment
-            repo: myorg/myrepo
-            container: my-container
-            namespace: app
-            tag:                 
-                - mytag
-                - latest
-            when:
-                branch: [ staging ]
-
-        deploy-prod:
-            image: quay.io/honestbee/drone-kubernetes
-            kubernetes_server: ${KUBERNETES_SERVER_PROD}
-            kubernetes_token: ${KUBERNETES_TOKEN_PROD}
-            # notice: no tls verification will be done, warning will is printed
-            deployment: my-deployment
-            repo: myorg/myrepo
-            container: my-container
-            namespace: app
-            tag:                 
-                - mytag
-                - latest
-            when:
-                branch: [ master ]
-```
+### TODO: To be tested - multiple containers from multiple deployments
 
 ## Required secrets
 
 ```bash
-    drone secret add --image=honestbee/drone-kubernetes \
-        your-user/your-repo KUBERNETES_SERVER https://mykubernetesapiserver
+    woodpecker-cli secret add --image=infras/woodpeckerci-kubernetes \
+        your-org/your-repo KUBERNETES_SERVER https://mykubernetesapiserver
 
-    drone secret add --image=honestbee/drone-kubernetes \
-        your-user/your-repo KUBERNETES_CERT <base64 encoded CA.crt>
+    woodpecker-cli secret add --image=infras/woodpeckerci-kubernetes \
+        your-org/your-repo KUBERNETES_CERT <base64 encoded CA.crt>
 
-    drone secret add --image=honestbee/drone-kubernetes \
-        your-user/your-repo KUBERNETES_TOKEN eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJ...
+    woodpecker-cli secret add --image=infras/woodpeckerci-kubernetes \
+        your-org/your-repo KUBERNETES_TOKEN eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJ...
 ```
 
 When using TLS Verification, ensure Server Certificate used by kubernetes API server 
 is signed for SERVER url ( could be a reason for failures if using aliases of kubernetes cluster )
 
-## How to get token
-1. After deployment inspect you pod for name of (k8s) secret with **token** and **ca.crt**
-```bash
-kubectl describe po/[ your pod name ] | grep SecretName | grep token
-```
-(When you use **default service account**)
-
-2. Get data from you (k8s) secret
-```bash
-kubectl get secret [ your default secret name ] -o yaml | egrep 'ca.crt:|token:'
-```
-3. Copy-paste contents of ca.crt into your drone's **KUBERNETES_CERT** secret
-4. Decode base64 encoded token
-```bash
-echo [ your k8s base64 encoded token ] | base64 -d && echo''
-```
-5. Copy-paste decoded token into your drone's **KUBERNETES_TOKEN** secret
-
-### RBAC
+## Generating secrets - RBAC
 
 When using a version of kubernetes with RBAC (role-based access control)
 enabled, you will not be able to use the default service account, since it does
 not have access to update deployments.  Instead, you will need to create a
 custom service account with the appropriate permissions (`Role` and `RoleBinding`, or `ClusterRole` and `ClusterRoleBinding` if you need access across namespaces using the same service account).
 
-As an example (for the `web` namespace):
+As an example (for the `default` namespace):
 
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: drone-deploy
-  namespace: web
+  name: cicd-deploy
+  namespace: default
+automountServiceAccountToken: true
 
 ---
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: drone-deploy
-  namespace: web
+  name: cicd-deploy
+  namespace: default
 rules:
-  - apiGroups: ["extensions"]
+  - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get","list","patch","update"]
+    verbs: ["get","list","patch","update", "watch"]
 
 ---
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: drone-deploy
-  namespace: web
+  name: cicd-deploy
+  namespace: default
 subjects:
   - kind: ServiceAccount
-    name: drone-deploy
-    namespace: web
+    name: cicd-deploy
+    namespace: default
 roleRef:
   kind: Role
-  name: drone-deploy
+  name: cicd-deploy
   apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cicd-deploy-secret
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: cicd-deploy
+type: kubernetes.io/service-account-token
+
 ```
 
 Once the service account is created, you can extract the `ca.cert` and `token`
 parameters as mentioned for the default service account above:
 
 ```
-kubectl -n web get secrets
-# Substitute XXXXX below with the correct one from the above command
-kubectl -n web get secret/drone-deploy-token-XXXXX -o yaml | egrep 'ca.crt:|token:'
+kubectl -n default get secret/cicd-deploy-secret -o yaml | egrep 'ca.crt:|token:'
 ```
 
-## To do 
-
+## Improvements / Ideas
 Replace the current kubectl bash script with a go implementation.
 
-### Special thanks
-
-Inspired by [drone-helm](https://github.com/ipedrazas/drone-helm).
