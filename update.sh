@@ -55,7 +55,7 @@ if [ ! -z ${PLUGIN_KUBERNETES_CERT} ]; then
   KUBERNETES_CERT=${PLUGIN_KUBERNETES_CERT}
 fi
 
-kubectl config set-credentials ${PLUGIN_KUBERNETES_USER} --token=(echo ${KUBERNETES_TOKEN}  | base64 -d)
+kubectl config set-credentials ${PLUGIN_KUBERNETES_USER} --token=$(echo ${KUBERNETES_TOKEN}  | base64 -d)
 if [ ! -z ${KUBERNETES_CERT} ]; then
   echo ${KUBERNETES_CERT} | base64 -d > ca.crt
   kubectl config set-cluster default --server=${KUBERNETES_SERVER} --certificate-authority=ca.crt

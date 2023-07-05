@@ -39,7 +39,7 @@ This pipeline will update the `my-deployment` deployment with the image tagged `
 
 ```yaml
     deploy:
-        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        image: euryecetelecom/woodpeckerci-kubernetes
         settings:
             kubernetes_server:
                 from_secret: kubernetes_server
@@ -64,7 +64,7 @@ This pipeline will update the `my-statefulset` statefulset with the image tagged
 
 ```yaml
     deploy:
-        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        image: euryecetelecom/woodpeckerci-kubernetes
         settings:
             kubernetes_server:
                 from_secret: kubernetes_server
@@ -89,7 +89,7 @@ This pipeline will update the `my-deployment` deployment with the image tagged `
 
 ```yaml
     deploy:
-        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        image: euryecetelecom/woodpeckerci-kubernetes
         settings:
             kubernetes_server:
                 from_secret: kubernetes_server
@@ -117,7 +117,7 @@ Deploying containers across several deployments, eg in a scheduler-worker setup.
     
 ```yaml
     deploy:
-        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        image: euryecetelecom/woodpeckerci-kubernetes
         settings:
             kubernetes_server:
                 from_secret: kubernetes_server
@@ -142,7 +142,7 @@ Deploying multiple containers within the same deployment.
 
 ```yaml
     deploy:
-        image: euryecetelecom/woodpeckerci-kubernetes:1.0
+        image: euryecetelecom/woodpeckerci-kubernetes
         settings:
             kubernetes_server:
                 from_secret: kubernetes_server
