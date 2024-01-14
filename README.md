@@ -1,6 +1,6 @@
 ---
 name: Kubernetes Deployment or StatefulSet Update
-authors: EuryeceTelecom
+author: EuryeceTelecom
 description: Update a Kubernetes deployment or statefulset
 tags: [deploy, kubernetes, deployment, container, statefulset]
 containerImage: euryecetelecom/woodpeckerci-kubernetes
